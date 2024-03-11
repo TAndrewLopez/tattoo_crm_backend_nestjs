@@ -13,11 +13,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ColorSchemeEnum {
+  BLACK_AND_WHITE
+  COLOR
+}
+
+enum RequestStatusEnum {
+  UNREAD
+  READ
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique
   password String
   salt     String
+
+  requests Request[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Request {
+  id                Int               @id @default(autoincrement())
+  fullName          String
+  email             String
+  phoneNumber       Int
+  pronouns          String?
+  size              String
+  placement         String
+  colorScheme       ColorSchemeEnum
+  description       String
+  status            RequestStatusEnum
+  appointmentAmount Int?
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

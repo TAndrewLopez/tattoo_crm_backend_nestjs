@@ -4,11 +4,11 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
-import { AuthCredentialsDto } from './dto/authCredentials.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { AuthCredentialsDto } from './dto/authCredentials.dto';
 import { IJwtPayload } from './interfaces/jwtPayload.interface';
 
 @Injectable()

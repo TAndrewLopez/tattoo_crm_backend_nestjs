@@ -1,16 +1,42 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { $Enums, Prisma } from '@prisma/client';
 
 import { DatabaseService } from 'src/database/database.service';
 import { CreateRequestDto } from './dto/createRequest.dto';
 import { IRequest } from './interfaces/request.interface';
+import { GetRequestFilterDto } from './dto/getRequestFilter.dto';
+import { PartialRequest } from './dto/partialRequest.dto';
 
 @Injectable()
 export class RequestService {
   constructor(private readonly prisma: DatabaseService) {}
 
-  async getRequests(): Promise<IRequest[]> {
-    return await this.prisma.request.findMany();
+  async getRequests(
+    getRequestFilterDto: GetRequestFilterDto,
+  ): Promise<IRequest[]> {
+    const { colorScheme, search, status } = getRequestFilterDto;
+    const where: Prisma.RequestWhereInput = {};
+
+    if (status) where.status = status;
+    if (colorScheme) where.colorScheme = colorScheme;
+
+    if (search) {
+      where.OR = [
+        { fullName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    try {
+      return await this.prisma.request.findMany({ where });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async getRequestById(id: number): Promise<IRequest> {
@@ -39,7 +65,7 @@ export class RequestService {
       data: {
         fullName,
         email,
-        phoneNumber: parseInt(phoneNumber),
+        phoneNumber,
         pronouns,
         colorScheme,
         description,
@@ -51,20 +77,15 @@ export class RequestService {
     return request;
   }
 
-  //   async updateRequest(
-  //     id: number,
-  //     partialRequest: PartialRequest,
-  //   ): Promise<IRequest> {
-  //     return await this.prisma.request.update({
-  //       where: { id },
-  //       data: { ...partialRequest },
-  //     });
-  //   }
-
-  async updateRequestStatus(id: number, status: $Enums.RequestStatusEnum) {
+  async updateRequest(
+    id: number,
+    partialRequest: PartialRequest,
+  ): Promise<IRequest> {
     return await this.prisma.request.update({
       where: { id },
-      data: { status },
+      data: {
+        ...partialRequest,
+      },
     });
   }
 

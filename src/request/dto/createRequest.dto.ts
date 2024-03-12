@@ -20,7 +20,7 @@ export class CreateRequestDto {
 
   @IsNotEmpty()
   @IsInt()
-  phoneNumber: string;
+  phoneNumber: number;
 
   @IsOptional()
   @IsString()
@@ -63,7 +63,7 @@ export class CreateRequestDto {
   @IsInt()
   userId?: number;
 
-  @IsOptional()
-  @IsInt()
-  organizationId?: number;
+  // @IsOptional()
+  // @IsInt()
+  // organizationId?: number;
 }

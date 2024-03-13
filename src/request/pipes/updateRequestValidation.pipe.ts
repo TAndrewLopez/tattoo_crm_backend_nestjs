@@ -19,6 +19,7 @@ export class UpdateRequestValidationPipe implements PipeTransform {
       'status',
       'appointmentAmount',
       'userId',
+      'organizationId',
     ];
   }
 
@@ -39,6 +40,7 @@ export class UpdateRequestValidationPipe implements PipeTransform {
         case 'phoneNumber':
         case 'appointmentAmount':
         case 'userId':
+        case 'organizationId':
           if (value[key] !== undefined && typeof value[key] !== 'number') {
             throw new BadRequestException(`${key} should be of type number.`);
           }

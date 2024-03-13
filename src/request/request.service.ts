@@ -29,6 +29,9 @@ export class RequestService {
         { fullName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+
+        // ONLY WORKS FOR EXACT PHONE NUMBERS
+        { phoneNumber: { equals: parseInt(search) } },
       ];
     }
 
@@ -50,31 +53,16 @@ export class RequestService {
   }
 
   async createRequest(createRequestDto: CreateRequestDto): Promise<IRequest> {
-    const {
-      fullName,
-      email,
-      phoneNumber,
-      pronouns,
-      colorScheme,
-      description,
-      placement,
-      size,
-    } = createRequestDto;
-
-    const request = await this.prisma.request.create({
-      data: {
-        fullName,
-        email,
-        phoneNumber,
-        pronouns,
-        colorScheme,
-        description,
-        placement,
-        size,
-        status: $Enums.RequestStatusEnum.UNREAD,
-      },
-    });
-    return request;
+    try {
+      return await this.prisma.request.create({
+        data: {
+          ...createRequestDto,
+          status: $Enums.RequestStatusEnum.UNREAD,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async updateRequest(

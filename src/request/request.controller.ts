@@ -38,8 +38,34 @@ export class RequestController {
     return this.requestService.getRequestById(id);
   }
 
-  @Post()
+  @Post('/public')
   createRequest(
+    @Body(ValidationPipe) createRequestDto: CreateRequestDto,
+  ): Promise<IRequest> {
+    const {
+      fullName,
+      email,
+      phoneNumber,
+      size,
+      placement,
+      colorScheme,
+      description,
+    } = createRequestDto;
+
+    return this.requestService.createRequest({
+      fullName,
+      email,
+      phoneNumber,
+      size,
+      placement,
+      colorScheme,
+      description,
+    });
+  }
+
+  @UseGuards(AuthGuard())
+  @Post()
+  createRequestAdmin(
     @Body(ValidationPipe) createRequestDto: CreateRequestDto,
   ): Promise<IRequest> {
     return this.requestService.createRequest(createRequestDto);
@@ -49,7 +75,8 @@ export class RequestController {
   @Patch(':id')
   updateRequest(
     @Param('id', ParseIntPipe) id: number,
-    @Body(UpdateRequestValidationPipe) partialRequest: PartialRequest,
+    @Body(ValidationPipe, UpdateRequestValidationPipe)
+    partialRequest: PartialRequest,
   ): Promise<IRequest> {
     return this.requestService.updateRequest(id, partialRequest);
   }

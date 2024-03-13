@@ -53,7 +53,6 @@ export class OrganizationService {
         },
       });
 
-      console.log({ organization });
       return organization;
     } catch (error) {
       if (error.code === 'P2025') {

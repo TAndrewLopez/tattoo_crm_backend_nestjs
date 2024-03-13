@@ -81,12 +81,24 @@ export class RequestService {
     id: number,
     partialRequest: PartialRequest,
   ): Promise<IRequest> {
-    return await this.prisma.request.update({
-      where: { id },
-      data: {
-        ...partialRequest,
-      },
-    });
+    try {
+      return await this.prisma.request.update({
+        where: { id },
+        data: {
+          ...partialRequest,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Request with id: ${id} was not found.`);
+      }
+      if (error.code === 'P2003') {
+        throw new NotFoundException(
+          `User with id: ${partialRequest.userId} was not found.`,
+        );
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async deleteRequest(id: number): Promise<IRequest> {

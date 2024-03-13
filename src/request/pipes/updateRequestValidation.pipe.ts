@@ -1,6 +1,7 @@
 import { BadRequestException, PipeTransform } from '@nestjs/common';
-import { IRequest } from '../interfaces/request.interface';
 import { $Enums } from '@prisma/client';
+
+import { IRequest } from '../interfaces/request.interface';
 
 export class UpdateRequestValidationPipe implements PipeTransform {
   private readonly allowedProperties: Array<keyof IRequest>;

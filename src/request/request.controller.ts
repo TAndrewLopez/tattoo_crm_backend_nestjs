@@ -21,10 +21,10 @@ import { PartialRequest } from './dto/partialRequest.dto';
 import { UpdateRequestValidationPipe } from './pipes/updateRequestValidation.pipe';
 
 @Controller('request')
-@UseGuards(AuthGuard())
 export class RequestController {
   constructor(private readonly requestService: RequestService) {}
 
+  @UseGuards(AuthGuard())
   @Get()
   getRequests(
     @Query(ValidationPipe) getRequestFilterDto: GetRequestFilterDto,
@@ -32,16 +32,20 @@ export class RequestController {
     return this.requestService.getRequests(getRequestFilterDto);
   }
 
+  @UseGuards(AuthGuard())
   @Get(':id')
   getRequestById(@Param('id', ParseIntPipe) id: number): Promise<IRequest> {
     return this.requestService.getRequestById(id);
   }
 
   @Post()
-  createRequest(@Body() createRequestDto: CreateRequestDto): Promise<IRequest> {
+  createRequest(
+    @Body(ValidationPipe) createRequestDto: CreateRequestDto,
+  ): Promise<IRequest> {
     return this.requestService.createRequest(createRequestDto);
   }
 
+  @UseGuards(AuthGuard())
   @Patch(':id')
   updateRequest(
     @Param('id', ParseIntPipe) id: number,
@@ -50,6 +54,7 @@ export class RequestController {
     return this.requestService.updateRequest(id, partialRequest);
   }
 
+  @UseGuards(AuthGuard())
   @Delete(':id')
   deleteRequest(@Param('id', ParseIntPipe) id: number): Promise<IRequest> {
     return this.requestService.deleteRequest(id);

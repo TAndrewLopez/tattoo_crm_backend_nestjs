@@ -25,13 +25,11 @@ enum RequestStatusEnum {
   REJECTED
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  salt     String
-
-  requests Request[]
+model Organization {
+  id     Int    @id @default(autoincrement())
+  name   String
+  userId Int?
+  user   User?  @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,6 +50,19 @@ model Request {
 
   userId Int?
   user   User? @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  salt     String
+
+  requests     Request[]
+  organization Organization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -46,24 +46,11 @@ export class CreateRequestDto {
   @MaxLength(300)
   description: string;
 
-  @IsNotEmpty()
-  @IsEnum([
-    $Enums.RequestStatusEnum.ACCEPTED,
-    $Enums.RequestStatusEnum.READ,
-    $Enums.RequestStatusEnum.REJECTED,
-    $Enums.RequestStatusEnum.UNREAD,
-  ])
-  status: $Enums.RequestStatusEnum;
-
-  @IsOptional()
-  @IsInt()
-  appointmentAmount?: number;
-
   @IsOptional()
   @IsInt()
   userId?: number;
 
-  // @IsOptional()
-  // @IsInt()
-  // organizationId?: number;
+  @IsOptional()
+  @IsInt()
+  organizationId?: number;
 }

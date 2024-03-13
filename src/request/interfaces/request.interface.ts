@@ -12,6 +12,7 @@ export interface IRequest {
   description: string;
   status: $Enums.RequestStatusEnum;
   appointmentAmount?: number;
-  userId?: number;
+  consultationId?: number;
   organizationId?: number;
+  userId?: number;
 }

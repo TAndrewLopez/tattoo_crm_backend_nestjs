@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -16,6 +17,36 @@ export class OrganizationService {
   async getOrganizations(): Promise<IOrganization[]> {
     try {
       return this.prisma.organization.findMany();
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getOrganizationById(id: number): Promise<IOrganization> {
+    try {
+      const org = await this.prisma.organization.findUnique({
+        where: { id },
+        include: {
+          employees: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          requests: true,
+        },
+      });
+
+      const employees = org.employees.map((employee) => ({
+        id: employee.user.id,
+        username: employee.user.username,
+      }));
+
+      return { ...org, employees };
     } catch (error) {
       throw new InternalServerErrorException();
     }
@@ -65,6 +96,31 @@ export class OrganizationService {
           `User with id: ${updateOrganizationDto.userId} was not found.`,
         );
       }
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async addUserToOrg(id: number, userId: number): Promise<void> {
+    try {
+      await this.prisma.orgsAndUsers.create({
+        data: {
+          organizationId: id,
+          userId,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          `User with id: ${userId} already exist in organization.`,
+        );
+      }
+
+      if (error.code === 'P2003') {
+        throw new NotFoundException(
+          `User with id: ${userId} or Org with id: ${id} was not found.`,
+        );
+      }
+
       throw new InternalServerErrorException();
     }
   }

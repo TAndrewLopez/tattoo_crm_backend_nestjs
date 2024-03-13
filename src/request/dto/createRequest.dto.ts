@@ -48,9 +48,13 @@ export class CreateRequestDto {
 
   @IsOptional()
   @IsInt()
-  userId?: number;
+  consultationId?: number;
 
   @IsOptional()
   @IsInt()
   organizationId?: number;
+
+  @IsOptional()
+  @IsInt()
+  userId?: number;
 }

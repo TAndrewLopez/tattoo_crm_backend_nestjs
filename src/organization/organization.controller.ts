@@ -16,6 +16,7 @@ import { CreateOrganizationDto } from './dto/createOrganization.dto';
 import { IOrganization } from './interfaces/organization.interface';
 import { UpdateOrganizationDto } from './dto/updateOrganization.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateOrgsAndUsersDto } from './dto/updateOrgsAndUsers.dto';
 
 @Controller('organization')
 @UseGuards(AuthGuard())
@@ -47,6 +48,15 @@ export class OrganizationController {
     @Body('userId') userId: number,
   ): Promise<void> {
     return this.organizationService.addUserToOrg(id, userId);
+  }
+
+  @Patch(':id/user')
+  updateUserToOrg(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateOrgsAndUserDto: UpdateOrgsAndUsersDto,
+  ): Promise<void> {
+    console.log({ organizationId: id, updateOrgsAndUserDto });
+    return this.organizationService.updateUserToOrg(id, updateOrgsAndUserDto);
   }
 
   @Patch(':id')

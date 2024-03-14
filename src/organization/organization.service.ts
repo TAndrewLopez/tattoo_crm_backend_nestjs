@@ -9,6 +9,7 @@ import { CreateOrganizationDto } from './dto/createOrganization.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { IOrganization } from './interfaces/organization.interface';
 import { UpdateOrganizationDto } from './dto/updateOrganization.dto';
+import { UpdateOrgsAndUsersDto } from './dto/updateOrgsAndUsers.dto';
 
 @Injectable()
 export class OrganizationService {
@@ -48,7 +49,7 @@ export class OrganizationService {
 
       return { ...org, employees };
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException(`Organization with id: ${id} was not found.`);
     }
   }
 
@@ -60,9 +61,14 @@ export class OrganizationService {
         data: { ...createOrganizationDto },
       });
     } catch (error) {
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          `User with id: ${createOrganizationDto.userId} has already been assigned an organization.`,
+        );
+      }
       if (error.code === 'P2003') {
         throw new NotFoundException(
-          `User with id: ${createOrganizationDto.userId} doesn't exists`,
+          `User with id: ${createOrganizationDto.userId} was not found.`,
         );
       }
       throw new InternalServerErrorException();
@@ -123,6 +129,24 @@ export class OrganizationService {
 
       throw new InternalServerErrorException();
     }
+  }
+
+  async updateUserToOrg(
+    id: number,
+    updateOrgsAndUsersDto: UpdateOrgsAndUsersDto,
+  ): Promise<void> {
+    await this.prisma.orgsAndUsers.update({
+      where: {
+        userId_organizationId: {
+          organizationId: id,
+          userId: updateOrgsAndUsersDto.userId,
+        },
+      },
+      data: {
+        organizationId: updateOrgsAndUsersDto.organizationId,
+      },
+    });
+    return;
   }
 
   async deleteOrganization(id: number): Promise<IOrganization> {

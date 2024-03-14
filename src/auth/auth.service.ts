@@ -58,6 +58,7 @@ export class AuthService {
     credentials: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
     const username = await this.validateUserPassword(credentials);
+
     if (!username) {
       throw new UnauthorizedException('Invalid Credentials.');
     }

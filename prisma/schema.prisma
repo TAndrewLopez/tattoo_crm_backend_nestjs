@@ -30,6 +30,8 @@ model Consultation {
   status    ConsultationStatusEnum @default(OPEN)
   requestId Int                    @unique
 
+  request Request @relation(fields: [requestId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -75,13 +77,14 @@ model Request {
   appointmentAmount Int?
 
   consultationId Int? @unique
-  organizationId Int? @unique
-  userId         Int? @unique
+  organizationId Int?
+  userId         Int?
 
   notes Note[]
 
   user         User?         @relation(fields: [userId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
+  consultation Consultation?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

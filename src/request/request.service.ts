@@ -29,8 +29,7 @@ export class RequestService {
         { fullName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-
-        // ONLY WORKS FOR EXACT PHONE NUMBERS
+        // AT THE MOMENT, THIS ONLY WORKS FOR EXACT PHONE NUMBERS
         { phoneNumber: { equals: parseInt(search) } },
       ];
     }
@@ -61,6 +60,11 @@ export class RequestService {
         },
       });
     } catch (error) {
+      if (error.code === 'P2003') {
+        throw new NotFoundException(
+          `User with id: ${createRequestDto.userId} or Organization with id: ${createRequestDto.organizationId} was not found.`,
+        );
+      }
       throw new InternalServerErrorException();
     }
   }
@@ -80,11 +84,23 @@ export class RequestService {
       if (error.code === 'P2025') {
         throw new NotFoundException(`Request with id: ${id} was not found.`);
       }
+
       if (error.code === 'P2003') {
-        throw new NotFoundException(
-          `User with id: ${partialRequest.userId} was not found.`,
-        );
+        if (partialRequest.userId && partialRequest.organizationId) {
+          throw new NotFoundException(
+            `User with id: ${partialRequest.userId} or Organization with id: ${partialRequest.organizationId} was not found`,
+          );
+        } else if (partialRequest.userId) {
+          throw new NotFoundException(
+            `User with id: ${partialRequest.userId} was not found.`,
+          );
+        } else if (partialRequest.organizationId) {
+          throw new NotFoundException(
+            `Organization with id: ${partialRequest.organizationId} was not found.`,
+          );
+        }
       }
+
       throw new InternalServerErrorException();
     }
   }

@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { $Enums } from '@prisma/client';
 
 import { IConsultation } from './interfaces/consultation.interface';
@@ -10,7 +15,11 @@ export class ConsultationService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async getConsultations(): Promise<IConsultation[]> {
-    return await this.prisma.consultation.findMany();
+    try {
+      return await this.prisma.consultation.findMany();
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async createConsultation(
@@ -26,7 +35,24 @@ export class ConsultationService {
         },
       });
     } catch (error) {
-      console.log({ error, code: error.code });
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          `Request with id: ${createConsultationDto.requestId} already has a consultation.`,
+        );
+      }
+      if (error.code === 'P2003') {
+        throw new NotFoundException(
+          `Request with id: ${createConsultationDto.requestId} was not found.`,
+        );
+      }
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateConsultation(id: number) {
+    try {
+      return await this.prisma.consultation.update({ where: { id }, data: {} });
+    } catch (error) {
       throw new InternalServerErrorException();
     }
   }
